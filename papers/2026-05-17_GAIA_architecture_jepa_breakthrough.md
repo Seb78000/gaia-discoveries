@@ -121,6 +121,51 @@ Three principles emerged from the training campaign :
 
 The training script (`scripts/jepa_train_advanced.py`) and the inbox corpus (1,233 expert pairs, hand-curated by S. Pernet) total ~30 MB. We do not release the training script itself, but the **resulting checkpoint** (`hjepa_v49_t015_short.pt`, 254 MB) is available on request for academic verification under a no-redistribution clause. The validation set (200 fixed held-out pairs) is small enough to be independently re-curated by anyone with access to the same source domains.
 
+## 3-bis. Recursive Self-Improvement (RSI) Loop — sandboxed & guarded
+
+Beyond the JEPA training campaign, GAIA implements a **bounded recursive self-improvement (RSI) loop** : the cluster can autonomously identify capability gaps, synthesize new Python modules to fill them, validate those modules in a sandbox, sign them, and load them into a dedicated namespace **without restarting the cluster**. This is the kind of self-modification behavior most relevant to frontier-AI safety discussions, so we describe both what is enabled and what is hard-blocked.
+
+### 3-bis.1 What is enabled (the green-path RSI chain)
+
+1. **Gap detection** : the cluster identifies missing capabilities via `core/ai/capability_gap_detector.py` and `new_capability_proposer.py` (cross-node P2P broadcasts of `NEW_CAPABILITY` proposals).
+2. **Goal materialization** : the proposal is materialized as an autonomous goal in `AutonomousGoalEngine` (TD-β-823 wires rescue dispatch on failures).
+3. **Code synthesis** : a Claude instance (typically node-4, the architect) generates a Python module fulfilling the spec.
+4. **Sandbox validation** : `core/ai/sandboxed_code_validator.py` runs the module in a subprocess with a `5,000-character traceback dump` (TD-β-817) and explicit `sys.modules` registration (TD-β-818, a one-line fix that closed a Python 3.12 `@dataclass` failure mode affecting 100 % of generated modules).
+5. **Cryptographic attribution** : the validated module's content hash is signed via post-quantum Dilithium (TD-β-188) and stored in the GAIA blockchain (TD-β-187 store_insight).
+6. **Hot-swap deployment** : the module is loaded via `ModuleHotSwapper.hot_swap()` (TD-β-45, file-path fallback) **without restarting GAIA** — the new capability becomes immediately callable.
+7. **Auto-load at next boot** : TD-β-816 ensures the synthesized module is part of the import package at the next boot cycle, so the new capability persists.
+
+### 3-bis.2 Concrete results to date
+
+Counted today (2026-05-17), GAIA has autonomously synthesized **21 modules** in `core/generated/synthesized/` :
+- 3 by node-0 (AI research domain)
+- 4 by node-1 (neuroscience)
+- 3 by node-2 (humanities)
+- 3 by node-3 (cross-domain synthesis)
+- 1 by node-4 (invention / architect)
+- 4 generated in response to Sébastien's cross-domain inbox prompts (Boot 158 batch ; cf §5)
+- 2 legacy modules from earlier training cycles
+- 1 `__init__.py` aggregator
+
+All modules executed their `if __name__ == '__main__':` self-tests successfully at synthesis time. The bench JSON `papers/bench_canonical_LIVE_2026-05-17.json` is one example output ; the four cross-domain validation modules (§5) are others.
+
+### 3-bis.3 What is hard-blocked (safety invariants)
+
+GAIA is **not allowed to modify its own engine**. Specifically :
+
+- **TD-β-118 invariant** : `forbid RSI on core/ paths`. The sandbox + RSI executor explicitly reject any code-generation target that resolves to a file under `core/ai/`, `core/orchestration/`, `core/memory/`, `core/blockchain/`, etc.
+- **Sandbox namespace** : all synthesized modules land in `core/generated/synthesized/`, a dedicated namespace separate from the engine.
+- **No function deletion** (cf `feedback_no_function_deletion` invariant) : GAIA cannot remove an existing function ; it can only add new modules in the sandbox namespace, or deprecate via flag.
+- **Critic gate** : a Claude critic (TD-β-389) reviews the synthesized code before deployment ; rejections are tracked.
+- **Backpressure** : when node-4 is saturated, all goal producers pause (TD-β-822 `is_drain_mode()` extension to the main `generate_goals_or_llm` entry point).
+- **Recovery override** : if any synthesized module misbehaves, the resilience layer (TD-β-826) detects via heartbeat / signal scan, quarantines the module to `core/generated/synthesized/.quarantine/`, and the incident's recovery prompt takes priority over normal node operation until resolved.
+
+### 3-bis.4 Honest framing
+
+This is **bounded RSI** : the cluster improves its capability surface by adding new functions in a controlled namespace, but cannot rewrite its own decision logic, training loop, or memory schema. The chain is mechanically auditable (blockchain + Dilithium signatures) and humanly auditable (every synthesized module is a standalone `.py` file in `core/generated/synthesized/`).
+
+We make **no claim** of unbounded self-improvement, nor of any capability discovery that exceeds what Claude Opus 4.7 could produce in isolation when given the same prompt. What is novel is the **autonomous closure of the loop** — gap detection → synthesis → validation → cryptographic attribution → hot-swap → persistent registry — under operational guardrails that publicly accessible LLM agents (Auto-GPT, BabyAGI, etc.) do not implement.
+
 ## 4. The Autonomy Trilogy (TD-β-825 / 826 / 827)
 
 On 2026-05-17, three architectural extensions were implemented in a single day to close the autonomy loop. We summarize them here ; the full design documents are in the repository's `papers/` directory.
