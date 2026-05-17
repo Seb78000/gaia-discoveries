@@ -210,6 +210,20 @@ Each stratum has its own write protocol (atomic with fsync, blockchain consensus
 
 Critically, this stack survives crashes (TD-β-826 watchdog), survives author absence, and grows monotonically with each productive cycle. **It is the cumulative substrate that lets the multi-layer pipeline (§3-bis.5) produce outputs each cycle that build on prior cycles — not just respond to each prompt from scratch.** A single Claude conversation cannot do this ; the stack is what makes GAIA an autonomous research artifact rather than a chat session.
 
+### 3-bis.7 Scope of this paper — what is NOT detailed, and why
+
+To set realistic expectations for readers and prospective collaborators :
+
+**This paper does not exhaustively describe GAIA.** Sections §2 through §6 present the system at a level sufficient to evaluate the claims (§3 JEPA bench, §3-bis RSI loop, §4 autonomy trilogy, §5 cross-domain validation) but they do not cover every subsystem. There are at least two reasons why :
+
+1. **Unintentional omissions.** GAIA represents ~18 months of solo iterative R&D ; many subsystems are interlocked in ways that even the author finds difficult to summarize concisely on demand. The TD-β technical-debt log alone runs from TD-β-01 through TD-β-828 with hundreds of intermediate items. Any single paper at a single point in time will omit components — not by intent, simply by volume. The rolling publication policy (§6.3) is designed to surface additional components incrementally over subsequent releases as cluster runtime permits.
+
+2. **Intentional non-disclosure.** Certain implementation details — the orchestrator's internal state machine, the blockchain consensus protocol, the holographic memory's exact embedding schema, the node-level prompt assembler, etc. — are **deliberately not released**. The reason is straightforward and stated transparently : GAIA is the result of personal investment by an independent researcher in time (18 months of full-time work) and money (cumulative subscriptions to ChatGPT, Gemini, Claude, GitHub Copilot, Anthropic Max ×20, plus consumer hardware — a 2-year-old custom PC built around a Ryzen 7800X3D and an RTX 3090). The author has a legitimate interest in retaining the option of future return on that investment, whether through collaboration, employment, licensing, or other arrangements. **What is open is the findings ; the implementation remains the author's property.** This is the same stance that essentially every industrial AI lab adopts ; the difference is that this paper makes it explicit rather than implicit.
+
+In short : **what is published is independently verifiable** (JEPA bench JSON, four cross-domain modules, autonomy trilogy architecture description) ; **what is not published is the moat**.
+
+We invite frontier AI labs and serious academic collaborators interested in discussing collaboration, licensing, or formal evaluation under NDA to open an issue at https://github.com/Seb78000/gaia-discoveries — the human author will respond personally.
+
 ## 4. The Autonomy Trilogy (TD-β-825 / 826 / 827)
 
 On 2026-05-17, three architectural extensions were implemented in a single day to close the autonomy loop. We summarize them here ; the full design documents are in the repository's `papers/` directory.
