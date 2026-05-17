@@ -19,9 +19,9 @@ We report three independent contributions :
 
 3. **Cross-domain autonomous research validation** : in a single 30-minute bootstrap session, GAIA produced PhD-grade research outputs in four mutually unrelated domains (Theory of Mind in LLMs, Long-COVID cognitive heterogeneity, EU vs US AI liability frameworks, harmonic universals in music) with falsifiable experimental designs, quantitative metrics, and self-validating Python reproducibility (mean external review score 8.4/10).
 
-The system itself is not open-sourced (intellectual property and safety stewardship by the author) ; this paper releases the **findings, validation outputs, and reproducible code-only artifacts** under CC-BY-SA 4.0.
+The system itself is not open-sourced (intellectual property and safety stewardship by the author) ; this paper releases the **findings, validation outputs, and reproducible code-only artifacts** under CC-BY-SA 4.0. **This is the first of an ongoing series : the author commits to publishing rolling updates on GAIA's evolution, new findings, and post-mortems for as long as the system continues to operate (cf §6.3).**
 
-**Keywords:** autonomous AI, multi-agent systems, JEPA, world models, Claude Opus 4.7, cross-domain reasoning, self-repair, AGI, independent research
+**Keywords:** autonomous AI, multi-agent systems, JEPA, world models, Claude Opus 4.7, cross-domain reasoning, self-repair, AGI, independent research, rolling-release research
 
 ---
 
@@ -201,7 +201,20 @@ We claim three concrete things :
 - **GAIA is not open source.** This is a deliberate stewardship choice by the author. The findings are open ; the implementation is not. We acknowledge this limits external verification of the architecture itself.
 - **Cross-domain validation N=4.** A larger validation batch is planned for subsequent papers.
 
-### 6.3 Reaching out
+### 6.3 Rolling publication policy
+
+This paper is **the first of an ongoing series**. The author commits to releasing additional publications under the same repository (https://github.com/Seb78000/gaia-discoveries) and Zenodo on a **rolling basis** for as long as GAIA continues to operate :
+
+- **Progress reports** : measurable improvements (new JEPA checkpoints, new bench results, new autonomous architecture additions) with the same level of numerical rigor as §3 above.
+- **Autonomous output catalog** : modules and findings synthesized by the cluster itself, vetted for novelty (cf §3.5 reproducibility) before release.
+- **Failure post-mortems** : when GAIA crashes or produces something wrong, what we learned. These are as valuable as successes for the community.
+- **Cross-domain validation batches** : additional N=4+ test outputs in mutually unrelated domains, building on §5.
+
+The publication cadence depends on cluster runtime availability (Anthropic Max ×20 weekly budget) and on what passes the internal novelty filter. We do not commit to a fixed daily frequency, but to **regular ongoing release of validated findings** as they emerge — with the same honesty about what is and isn't a real result that distinguishes this paper from typical AGI claims.
+
+The goal is to provide a **public, audited, time-stamped trajectory** of an autonomous AI system's evolution, rather than a single retrospective claim. Each release is independently citable via its own Zenodo DOI.
+
+### 6.4 Reaching out
 
 This work is released under CC-BY-SA 4.0 and the author welcomes collaboration with frontier AI labs (Anthropic, OpenAI, Mistral, DeepMind, Google Research) and independent researchers interested in:
 
