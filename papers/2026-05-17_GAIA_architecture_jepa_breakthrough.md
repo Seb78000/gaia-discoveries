@@ -13,7 +13,7 @@ We present **GAIA**, an autonomous AI research cluster developed by a single ind
 
 We report three independent contributions :
 
-1. **JEPA Pure-InfoNCE training breakthrough** : we report two improvements separately to avoid conflating them. **(a)** A silent checkpoint-loading bug (a stale auxiliary file overrode the trained predictor at load time) had been invalidating benchmarks for two weeks ; once fixed, the true v35 baseline on a 200-pair canonical held-out validation set was top-1 = **58 %** (standard action-embedding regime) and **0.5 %** (harder hash-action regime). **(b)** Replacing VICReg+MSE with pure in-batch InfoNCE contrastive loss (temperature 0.15) raised top-1 to **78 %** (+20 pp, standard regime) and **61 %** (×122, hash regime) — best checkpoint `hjepa_v49_t015_short.pt`. From the original pre-project H-JEPA baseline, cosine similarity on held-out improved from 0.029 to 0.255 (×8.8) over the full training campaign.
+1. **JEPA training : pure InfoNCE + hash-action regime (live-measured 2026-05-17)** : on a 200-pair canonical held-out validation set re-measured today on a single RTX 3090, the best checkpoint (`v53_inbox_hash`, InfoNCE T=0.15 with hash-action representation) reaches **top-1 = 28.5%** vs **2.0%** for the best pre-InfoNCE checkpoint (`v34_ULTRA`) — a **×14.25 improvement** with cosine similarity **×2.5** and separation vs random **×37**. The single-objective InfoNCE-only checkpoints (v46 / v49) show a more modest **2% → 5–6% top-1**, suggesting the hash-action regime is the more decisive ingredient. Full bench JSON published at `papers/bench_canonical_LIVE_2026-05-17.json`.
 
 2. **A three-layer autonomy architecture** (TD-β-825/826/827) that allows the cluster to (a) negotiate territorial allocation under shared resource scarcity, (b) self-repair via runbook-driven hot-swap or watchdog-driven restart, and (c) accumulate institutional memory through coordination documents (decisions, sprints, plans, discussions, briefings, handoffs).
 
@@ -72,34 +72,40 @@ Around the five LLM nodes, GAIA adds :
 
 What we do release is the **outputs** : the JEPA training results below, the autonomy architecture description, the four cross-domain validation modules.
 
-## 3. JEPA Pure-InfoNCE Training Breakthrough (TD-β-745)
+## 3. JEPA Training : Pure InfoNCE + Hash-Action Regime (live-measured 2026-05-17)
 
 ### 3.1 Setup
 
-We follow LeCun's H-JEPA proposal : a 254 MB encoder-predictor model trained on text-action-next-text triples to predict the embedding of next text given current text and an action embedding. Until 2026-05-12, GAIA's training objective combined Variance-Invariance-Covariance Regularization (VICReg) with a mean-squared-error (MSE) reconstruction loss. Despite extensive iteration (~30 training rounds, accumulated ~350,000 optimization steps), top-1 accuracy on the canonical held-out validation set (200 pairs, frozen) plateaued at 5%.
+We follow LeCun's H-JEPA proposal : a 254 MB encoder-predictor model trained on text-action-next-text triples to predict the embedding of next text given current text and an action embedding. Two training objectives were compared : (a) the standard VICReg + MSE combination, and (b) pure in-batch InfoNCE contrastive loss at temperature 0.15.
 
-### 3.2 The discovery — and the bug
+Reproducibility note : a stale checkpoint-loading bug had been invalidating earlier benchmarks ; it was fixed by setting `GAIA_HJEPA_L1_OVERRIDE_PATH=/dev/null` before evaluation. **All numbers below are from a fresh measurement campaign run on 2026-05-17 with the bug fix in place**, on the canonical 200-pair held-out validation set.
 
-A latent bug was uncovered first. The model loader (`load_checkpoint`) silently overrode the trained predictor with a previously-saved auxiliary file `hjepa_M5_mix.pt` whenever the latter was present in the same directory. This invalidated nearly two weeks of benchmark results. The bug was eliminated by setting `GAIA_HJEPA_L1_OVERRIDE_PATH=/dev/null`.
+### 3.2 Live benchmark results (2026-05-17, GPU RTX 3090)
 
-With the override disabled, the true predictor state was finally measurable. Baseline (`v35_ULTIMATE`, pre-InfoNCE) : top-1 = **58 %** on the standard action-embedding regime, **0.5 %** on a harder hash-action regime.
+The full benchmark JSON is published in this repository at `papers/bench_canonical_LIVE_2026-05-17.json`. Reproduction takes < 2 minutes on a single RTX 3090.
 
-The breakthrough came from replacing VICReg+MSE with **pure in-batch InfoNCE contrastive loss** (cross-entropy on a similarity matrix, in-batch negatives, temperature 0.15). The rationale : VICReg's variance term was suppressing the geometry the predictor needed to learn, while InfoNCE forces the predictor to discriminate among in-batch alternatives.
+| Checkpoint | Cosine | **Top-1** | Top-5 | Separation vs random |
+|-----------|--------|-----------|-------|----------------------|
+| `v34_ULTRA` (best pre-InfoNCE, hand-curated corpus) | 0.096 | **2.00 %** | 3.00 % | 0.006 |
+| `v35_ULTIMATE` (frozen baseline) | 0.081 | **0.50 %** | 3.50 % | 0.004 |
+| `v46_infonce_real` (early InfoNCE, batch 128) | 0.071 | **6.50 %** | 14.50 % | 0.030 |
+| `v49_t015_short` (InfoNCE T=0.15, 5k steps from v46) | 0.066 | **5.50 %** | 12.50 % | 0.036 |
+| `v53_inbox_hash` (InfoNCE + hash-action regime) ⭐ | **0.236** | **28.50 %** | **51.00 %** | **0.224** |
 
-### 3.3 Results
+### 3.3 Findings
 
-Best checkpoint after Pure-InfoNCE training (`hjepa_v49_t015_short.pt`, batch 128, temp 0.15, lr 3e-4 × 0.5, 5,000 steps from v46) :
+1. **InfoNCE alone is not the breakthrough.** v46 / v49 (pure InfoNCE on standard action embeddings) improve top-1 from ~2 % to ~6 %, a real but modest gain.
+2. **Hash-action regime + InfoNCE is the breakthrough.** v53 (the same InfoNCE objective applied with the inbox corpus and a hash-based action representation) lifts top-1 to **28.5 % (×14.25 over v34 baseline, ×57 over v35)** with cosine similarity **×2.5** over v34 and separation vs random **×37**.
+3. **Cosine is not a sufficient metric on its own.** v46/v49 show *lower* cosine than the VICReg baselines while showing *higher* top-1 — meaning InfoNCE training produced a different embedding geometry that's discriminative without being closer in raw cosine. Top-1 and separation vs random are the metrics that track real predictive power.
+4. **Earlier higher-number claims do not hold up.** Internal session notes from 2026-05-12 reported "v49 = 78 % top-1". On the canonical held-out set re-measured today, v49 is at 5.5 % top-1. The 78 % figure was likely measured on the training-set inbox (overfit) rather than on the held-out canonical val. **We retract any prior 78 % claim and report only the held-out v53 result.**
 
-| Regime | Before (v35 baseline, post-bug-fix, pre-InfoNCE) | After (v49, post-InfoNCE) | Improvement |
-|--------|----------------------------------|----------------------------|-------------|
-| Action-embed-categorical | 58 % | **78 %** | +20 pp |
-| Action-embed-hash | 0.5 % | **61 %** | **×122** |
+### 3.4 Modest but real conclusion
 
-**Note on the "5%" plateau** : prior to the bug fix (§3.2), top-1 measured at ~5 % on the standard regime. This was an artifact of the broken loader overriding the trained predictor with the stale `M5_mix.pt` file. We do not claim a 5 % → 78 % improvement as a single result, because the bug fix and the InfoNCE switch are two independent contributions. The honest numbers are the v35 baseline (58 % / 0.5 %) once the bug was eliminated, and the v49 result (78 % / 61 %) after the InfoNCE switch.
+The single concrete numerical contribution of this paper is :
 
-Compared to the original H-JEPA at GAIA's project start :
-- Cosine similarity (held-out) : 0.029 → **0.255** (×8.8, **+779 %**)
-- Best checkpoint : `hjepa_claude_active_v34_ULTRA.pt`
+> **GAIA H-JEPA v53 reaches top-1 = 28.5 % on a 200-pair canonical held-out validation set** (vs 2 % for the best pre-InfoNCE checkpoint), trained on consumer hardware (RTX 3090) from a 1,233-pair hand-curated expert corpus, using pure in-batch InfoNCE at temperature 0.15 in combination with a hash-based action representation. Reproducible via the published checkpoint and bench script.
+
+This is not a frontier SOTA result — it is a modest, honest, reproducible improvement on a small-scale H-JEPA on a single GPU, with a specific finding (hash-action regime matters more than InfoNCE alone) that may be useful for other independent JEPA researchers.
 
 ### 3.4 Methodology lessons
 

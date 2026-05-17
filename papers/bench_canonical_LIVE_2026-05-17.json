@@ -1,0 +1,46 @@
+{
+  "val_n": 200,
+  "ts": "2026-05-17 20:30",
+  "results": [
+    {
+      "ckpt": "v34_ULTRA",
+      "path": "data/lecun/hjepa_claude_active_v34_ULTRA.pt",
+      "cos": 0.0959048643708229,
+      "top1": 0.019999999552965164,
+      "top5": 0.029999999329447746,
+      "cos_random": 0.08988738805055618
+    },
+    {
+      "ckpt": "v35_ULTIMATE",
+      "path": "data/lecun/hjepa_claude_active_v35_ULTIMATE.pt",
+      "cos": 0.08094298839569092,
+      "top1": 0.004999999888241291,
+      "top5": 0.03500000014901161,
+      "cos_random": 0.07659627497196198
+    },
+    {
+      "ckpt": "v46_infonce",
+      "path": "data/lecun/hjepa_v46_infonce_real.pt",
+      "cos": 0.07131627947092056,
+      "top1": 0.06499999761581421,
+      "top5": 0.14499999582767487,
+      "cos_random": 0.041435278952121735
+    },
+    {
+      "ckpt": "v49_t015_short",
+      "path": "data/lecun/hjepa_v49_t015_short.pt",
+      "cos": 0.06633760780096054,
+      "top1": 0.054999999701976776,
+      "top5": 0.125,
+      "cos_random": 0.030510639771819115
+    },
+    {
+      "ckpt": "v53_inbox_hash",
+      "path": "data/lecun/hjepa_v53_inbox_hash.pt",
+      "cos": 0.23598387837409973,
+      "top1": 0.2849999964237213,
+      "top5": 0.5099999904632568,
+      "cos_random": 0.011778311803936958
+    }
+  ]
+}
