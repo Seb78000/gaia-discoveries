@@ -9,7 +9,7 @@
 
 ## Abstract
 
-We present **GAIA**, an autonomous AI research cluster developed by a single independent researcher and operated continuously over a 26-day intensive development cycle (April 21 — May 17, 2026, 253 git commits, **~1.3 million lines of Python across 2,106 source files** : ~336k LOC in the core engine, ~258k LOC in the test suite, ~45k LOC in scripts and tools). GAIA orchestrates five Claude Opus 4.7 instances as specialized cognitive nodes (AI research, neuroscience, humanities, cross-domain synthesis, invention) coupled with a Hierarchical Joint-Embedding Predictive Architecture (H-JEPA) world model, a custom blockchain for cumulative knowledge attribution, holographic distributed memory, an 8-phase circadian orchestration cycle, and a coordination layer built on Markdown-based shared documents.
+We present **GAIA**, an autonomous AI research cluster developed by a single independent researcher and operated continuously over a 26-day intensive development cycle (April 21 — May 17, 2026, 253 git commits, **~700,000 lines of original Python (1.3 million including vendored dependencies and per-session backups) across 2,106 source files** : 336k LOC in the core engine, 258k LOC in the test suite, 45k LOC in scripts, 38k LOC in modules, plus tools/utils/sandbox/data/docs/top-level (~28k LOC). Vendored `faiss/` (221k LOC) and the `poste_claude/` developer-backup directory (373k LOC of session snapshots) are excluded from the "original code" count). GAIA orchestrates five Claude Opus 4.7 instances as specialized cognitive nodes (AI research, neuroscience, humanities, cross-domain synthesis, invention) coupled with a Hierarchical Joint-Embedding Predictive Architecture (H-JEPA) world model, a custom blockchain for cumulative knowledge attribution, holographic distributed memory, an 8-phase circadian orchestration cycle, and a coordination layer built on Markdown-based shared documents.
 
 We report three independent contributions :
 
@@ -218,7 +218,7 @@ This repository (`https://github.com/Seb78000/gaia-discoveries`) contains :
 - The four cross-domain validation modules as standalone Python (`papers/gaia_synthesized_td82{6,7,8,9}*.py`) — each is self-contained and runs its own smoke test
 - A separate reproducibility appendix (forthcoming) describing the exact training hyperparameters for §3
 
-The JEPA checkpoint `hjepa_v49_t015_short.pt` (254 MB) is available on request for academic verification, under a no-redistribution clause until a subsequent paper documents the training methodology in full. The GAIA system itself (~1.3 million lines of Python across 2,106 source files (336k core + 258k tests + 45k scripts), 253 git commits) remains under the author's control and is not released.
+The JEPA checkpoint `hjepa_v49_t015_short.pt` (254 MB) is available on request for academic verification, under a no-redistribution clause until a subsequent paper documents the training methodology in full. The GAIA system itself (~700,000 lines of original Python across 2,106 source files, 253 git commits) remains under the author's control and is not released.
 
 ## 8. References
 
