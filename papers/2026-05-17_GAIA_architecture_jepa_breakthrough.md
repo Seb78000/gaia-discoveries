@@ -175,6 +175,41 @@ We make **no claim** of unbounded self-improvement. But we do claim that **GAIA 
 
 **The Claude Opus 4.7 instances are the reasoning organs of GAIA, not its sole source of intelligence.** The intelligence emerges from the system as a whole : the trained models, the accumulated memory, the live research scaffolding, the architectural code, and the coordinated cluster of reasoning organs operating under shared protocols. What is novel is the **autonomous closure of the loop** — gap detection → synthesis → validation → cryptographic attribution → hot-swap → persistent registry — coupled with this surrounding cognitive web, under operational guardrails that publicly accessible LLM agents (Auto-GPT, BabyAGI, etc.) do not implement.
 
+### 3-bis.5 The multi-layer cognitive pipeline
+
+A second reason GAIA produces outputs no single Claude can produce is the **depth** of the cognitive pipeline. Each non-trivial output is the result of multiple sequential reasoning stages, not a single LLM forward pass :
+
+1. **JEPA H (text world model)** — latent anticipation : given current context, the H-JEPA predictor (§3) emits a predicted next-state embedding. This guides downstream nodes toward predictively coherent continuations.
+2. **JEPA V (visual world model)** — visual grounding when relevant (e.g. embodied perception, terminal capture, video reasoning). H↔V divergence detection (TD-β-718) flags incoherence between modalities.
+3. **Worker nodes (0, 1, 2)** — domain-specific reasoning by Claude instances specialized to AI-research / neuroscience / humanities, each with their own holographic-memory context and their own scraped corpus.
+4. **Cerebral node (3)** — cross-domain synthesis : a Claude instance that consumes the workers' outputs and looks for connections, contradictions, missing prerequisites. Performs a **"second reflection"** that the workers cannot perform individually (they lack global context).
+5. **Architect node (4)** — capability invention : when the synthesis identifies a missing tool or capability, node-4 designs a Python module or strategic plan, validated through the RSI sandbox chain (§3-bis.1).
+6. **Re-entry loop** — if implementation hits a problem (sandbox failure, runtime crash, JEPA collapse, peer disconnect, etc.) the resilience layer (§4 TD-β-826) opens an incident, **the recovery prompt overrides normal node prompts**, and the affected stages re-run with enriched context (failure trace, runbook directives, sibling-node observations). This is a **closed feedback loop**, not a one-shot pipeline.
+7. **Strategic plans** — distilled from the cerebral synthesis, plans are persisted in `data/cluster_coordination/plans/` and `decisions/` (TD-β-827). They survive across boots and inform subsequent runs.
+
+The total cognitive depth for a single significant output is therefore **2 model-class inferences (H-JEPA + optional V-JEPA) + up to 5 sequential LLM reasoning stages + at least 1 cryptographic validation + optional re-entry**. Compare this to a single Claude conversation (1 LLM stage, no persistence, no cross-domain integration, no formal validation, no recovery loop).
+
+This is what we mean by "the intelligence emerges from the system" : it is the **composition** of model-level prediction, multi-node sequential reasoning, persistent strategic memory, and bounded recovery loops that creates capability — not the underlying LLM in isolation. None of the individual Claude instances is the seat of GAIA's intelligence ; the pipeline is.
+
+### 3-bis.6 The memory stack — what makes the pipeline cumulative
+
+The multi-layer pipeline (§3-bis.5) would be just a longer prompt chain if it had no memory. What makes GAIA's reasoning **cumulative** across sessions, boots, and crashes is its memory stack — at least seven distinct strata, each serving a different temporal and semantic role :
+
+| Stratum | Lifespan | Role | Implementation |
+|---------|----------|------|----------------|
+| **Per-node Claude conversational memory** | Within one Claude session (~hours) | Working context for a single node's reasoning chain | Claude Code subprocess + `.remember/` (TD-β-650) per node : `data/claude_memory/node-{0..4}/` |
+| **Per-node journal** | Across sessions of a single node | Brief continuity for one specialist | TD-β-728/729 per-node journals + 6 enrichers (mission / JEPA state / arXiv / peer consults / meta-com / auto-eval) |
+| **Holographic distributed memory** | Persistent, cluster-wide | Cross-domain concept-level recall | `data/holographic/` with FAISS index per domain + concept clustering |
+| **GAIA semantic blockchain** | Persistent + cryptographically verifiable | Cumulative knowledge attribution (insights / decisions / RSI mutations / discoveries) | ~2,000 blocks today, ~9 KB each, ~19 MB total. Post-quantum Dilithium signatures (TD-β-188). store_insight callers wired across the system (TD-β-187 / TD-β-246) |
+| **JEPA latent memory** | Persistent (model weights) | Predictive priors, embedded knowledge from training corpora | Encoder + predictor checkpoints (`data/lecun/`) |
+| **Coordination documents** (TD-β-827) | Persistent, human + LLM readable | Institutional memory : decisions, sprints, plans, briefings, handoffs | `data/cluster_coordination/` Markdown files |
+| **Cluster constitution + runbooks** (TD-β-825 / 826) | Persistent | Territorial allocation, procedural recovery knowledge | `data/cluster_constitution/plan_v(N).md` + `data/cluster_runbooks/*.md` |
+| **Discovery registry** (TD-β-828) | Persistent + externally cited | Publishable outputs with novelty filter + tier promotion | `data/gaia_discoveries/registry.jsonl` + Zenodo DOIs |
+
+Each stratum has its own write protocol (atomic with fsync, blockchain consensus, append-only, etc.) and its own read pattern (cosine search, prompt injection, status quorum). They are not redundant : a fact stored in the blockchain is cryptographically attributable but slow to query semantically ; the same fact recalled from holographic memory is fast but unsigned ; injected into a node's Claude prompt it becomes actionable but ephemeral. **The combination produces a memory architecture closer to biological systems than to a single LLM context window.**
+
+Critically, this stack survives crashes (TD-β-826 watchdog), survives author absence, and grows monotonically with each productive cycle. **It is the cumulative substrate that lets the multi-layer pipeline (§3-bis.5) produce outputs each cycle that build on prior cycles — not just respond to each prompt from scratch.** A single Claude conversation cannot do this ; the stack is what makes GAIA an autonomous research artifact rather than a chat session.
+
 ## 4. The Autonomy Trilogy (TD-β-825 / 826 / 827)
 
 On 2026-05-17, three architectural extensions were implemented in a single day to close the autonomy loop. We summarize them here ; the full design documents are in the repository's `papers/` directory.
