@@ -13,7 +13,7 @@ We present **GAIA**, an autonomous AI research cluster developed by a single ind
 
 We report three independent contributions :
 
-1. **JEPA Pure-InfoNCE training breakthrough** : on a 200-pair canonical held-out validation set, top-1 accuracy rose from **5% to 78%** (×15.6) and from **0.5% to 61%** (×122) on a harder hash-action regime, by replacing the standard VICReg+MSE objective with pure in-batch InfoNCE contrastive loss at temperature 0.15 (TD-β-745, ckpt `hjepa_v49_t015_short.pt`).
+1. **JEPA Pure-InfoNCE training breakthrough** : we report two improvements separately to avoid conflating them. **(a)** A silent checkpoint-loading bug (a stale auxiliary file overrode the trained predictor at load time) had been invalidating benchmarks for two weeks ; once fixed, the true v35 baseline on a 200-pair canonical held-out validation set was top-1 = **58 %** (standard action-embedding regime) and **0.5 %** (harder hash-action regime). **(b)** Replacing VICReg+MSE with pure in-batch InfoNCE contrastive loss (temperature 0.15) raised top-1 to **78 %** (+20 pp, standard regime) and **61 %** (×122, hash regime) — best checkpoint `hjepa_v49_t015_short.pt`. From the original pre-project H-JEPA baseline, cosine similarity on held-out improved from 0.029 to 0.255 (×8.8) over the full training campaign.
 
 2. **A three-layer autonomy architecture** (TD-β-825/826/827) that allows the cluster to (a) negotiate territorial allocation under shared resource scarcity, (b) self-repair via runbook-driven hot-swap or watchdog-driven restart, and (c) accumulate institutional memory through coordination documents (decisions, sprints, plans, discussions, briefings, handoffs).
 
@@ -90,10 +90,12 @@ The breakthrough came from replacing VICReg+MSE with **pure in-batch InfoNCE con
 
 Best checkpoint after Pure-InfoNCE training (`hjepa_v49_t015_short.pt`, batch 128, temp 0.15, lr 3e-4 × 0.5, 5,000 steps from v46) :
 
-| Regime | Before | After | Multiplier |
-|--------|--------|-------|------------|
-| Action-embed-categorical | 58 % | **78 %** | ×1.34 (+20 pp) |
+| Regime | Before (v35 baseline, post-bug-fix, pre-InfoNCE) | After (v49, post-InfoNCE) | Improvement |
+|--------|----------------------------------|----------------------------|-------------|
+| Action-embed-categorical | 58 % | **78 %** | +20 pp |
 | Action-embed-hash | 0.5 % | **61 %** | **×122** |
+
+**Note on the "5%" plateau** : prior to the bug fix (§3.2), top-1 measured at ~5 % on the standard regime. This was an artifact of the broken loader overriding the trained predictor with the stale `M5_mix.pt` file. We do not claim a 5 % → 78 % improvement as a single result, because the bug fix and the InfoNCE switch are two independent contributions. The honest numbers are the v35 baseline (58 % / 0.5 %) once the bug was eliminated, and the v49 result (78 % / 61 %) after the InfoNCE switch.
 
 Compared to the original H-JEPA at GAIA's project start :
 - Cosine similarity (held-out) : 0.029 → **0.255** (×8.8, **+779 %**)
@@ -186,7 +188,7 @@ We do not claim full AGI. The system inherits its core reasoning capability from
 
 We claim three concrete things :
 
-1. **§3 is a real numerical result** : pure-InfoNCE on a 254 MB H-JEPA model produced top-1 5 % → 78 % on a frozen 200-pair held-out validation set. This is reproducible (with the released checkpoint) by anyone.
+1. **§3 is a real numerical result** : on a frozen 200-pair held-out validation set, pure-InfoNCE on a 254 MB H-JEPA model produced top-1 58 % → 78 % (standard regime, +20 pp) and 0.5 % → 61 % (hash regime, ×122). The bug fix (§3.2) is a separate prior contribution. This is reproducible (with the released checkpoint) by anyone.
 
 2. **§4 is a real architectural pattern** : the autonomy trilogy as described works, on a single consumer machine, today. Other independent researchers building autonomous AI clusters may find it useful.
 
