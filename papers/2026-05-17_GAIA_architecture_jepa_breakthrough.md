@@ -160,11 +160,20 @@ GAIA is **not allowed to modify its own engine**. Specifically :
 - **Backpressure** : when node-4 is saturated, all goal producers pause (TD-β-822 `is_drain_mode()` extension to the main `generate_goals_or_llm` entry point).
 - **Recovery override** : if any synthesized module misbehaves, the resilience layer (TD-β-826) detects via heartbeat / signal scan, quarantines the module to `core/generated/synthesized/.quarantine/`, and the incident's recovery prompt takes priority over normal node operation until resolved.
 
-### 3-bis.4 Honest framing
+### 3-bis.4 Honest framing — what comes from Claude vs what comes from GAIA
 
 This is **bounded RSI** : the cluster improves its capability surface by adding new functions in a controlled namespace, but cannot rewrite its own decision logic, training loop, or memory schema. The chain is mechanically auditable (blockchain + Dilithium signatures) and humanly auditable (every synthesized module is a standalone `.py` file in `core/generated/synthesized/`).
 
-We make **no claim** of unbounded self-improvement, nor of any capability discovery that exceeds what Claude Opus 4.7 could produce in isolation when given the same prompt. What is novel is the **autonomous closure of the loop** — gap detection → synthesis → validation → cryptographic attribution → hot-swap → persistent registry — under operational guardrails that publicly accessible LLM agents (Auto-GPT, BabyAGI, etc.) do not implement.
+We make **no claim** of unbounded self-improvement. But we do claim that **GAIA produces outputs that no single Claude Opus 4.7 invocation could produce in isolation, because the intelligence is distributed across the cluster and accumulates over time** :
+
+- **Trained model weights** : the JEPA v53 predictor (§3) has weights resulting from GAIA's training pipeline (1,233 expert pairs, ~30 training rounds, hours of GPU). These weights are an artifact of the system, not of any single Claude call.
+- **Post-cutoff knowledge** : the cluster's scraper, **orchestrated by the nodes themselves**, retrieves recent (post-2024) information from arXiv, PubMed, Semantic Scholar, GitHub trending, SEC EDGAR, Wikipedia, etc. The frontier filter (TD-β-721) routes this into research programs that no Claude invocation alone could resource.
+- **Live web research without scraper** : node-3 (cerebral) and node-4 (architect) also have direct LLM tool-use access to web search, independent of the scraper pipeline.
+- **Cumulative holographic memory** : multi-session concept-level recall via FAISS-per-domain ; this is institutional memory that accumulates across boots and outlives any single conversational context.
+- **Architectural scaffolding** : ~700,000 lines of original Python implementing the orchestrator, blockchain consensus, circadian phase machinery, cross-node coordination, autonomy trilogy (§4), and so on. **This code is the work of the system across 18 months of solo human–AI collaboration, not the work of any single Claude prompt.**
+- **Cross-node synthesis** : node-3 specifically performs syntheses that combine information from four other nodes' territories simultaneously, with persistent shared memory — a configuration no individual Claude session can replicate.
+
+**The Claude Opus 4.7 instances are the reasoning organs of GAIA, not its sole source of intelligence.** The intelligence emerges from the system as a whole : the trained models, the accumulated memory, the live research scaffolding, the architectural code, and the coordinated cluster of reasoning organs operating under shared protocols. What is novel is the **autonomous closure of the loop** — gap detection → synthesis → validation → cryptographic attribution → hot-swap → persistent registry — coupled with this surrounding cognitive web, under operational guardrails that publicly accessible LLM agents (Auto-GPT, BabyAGI, etc.) do not implement.
 
 ## 4. The Autonomy Trilogy (TD-β-825 / 826 / 827)
 
